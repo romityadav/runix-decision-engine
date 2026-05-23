@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "runix-decision-engine"
+version = "1.0.0"
+description = "Decision-intelligence engine that turns a logistics disruption scenario into a costed, prescriptive operational decision."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Runix Technical Challenge" }]
+keywords = ["logistics", "decision-intelligence", "operations-research", "prescriptive-analytics"]
+
+# The engine core depends on one thing only: a reader for the .xlsx scenario.
+# Everything heavy (dashboard, plotting, LLM) is an optional extra so the
+# decision logic stays cheap to import and easy to test.
+dependencies = [
+    "openpyxl>=3.1",
+]
+
+[project.optional-dependencies]
+dashboard = [
+    "streamlit>=1.30",
+    "plotly>=5.18",
+    "pandas>=2.0",
+]
+llm = [
+    "anthropic>=0.40",
+]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+runix = "runix.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/runix"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-ra -q"
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# pycodestyle, pyflakes, isort, bugbear, comprehensions, pyupgrade
+select = ["E", "F", "I", "B", "C4", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# Plotly's API idiomatically uses dict(...) for nested options; keep it.
+"app/dashboard.py" = ["C408"]
